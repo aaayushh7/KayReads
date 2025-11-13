@@ -14,6 +14,7 @@ interface Review {
   slug: string;
   title: string;
   authors: string[];
+  isbn?: string;
   coverUrl: string;
   rating: number;
   finalText: string;
@@ -26,6 +27,8 @@ export default function HomePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState<Review | null>(null);
+  const [bookSummary, setBookSummary] = useState<string>('');
+  const [loadingSummary, setLoadingSummary] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [mobileCarouselIndex, setMobileCarouselIndex] = useState(0);
 
@@ -137,7 +140,24 @@ export default function HomePage() {
                     <div className="flex gap-4 p-4">
                       {/* Cover - Clickable */}
                       <button
-                        onClick={() => setSelectedBook(review)}
+                        onClick={async () => {
+                          setSelectedBook(review);
+                          setLoadingSummary(true);
+                          setBookSummary('');
+                          
+                          // Fetch official book summary
+                          if (review.isbn) {
+                            try {
+                              const response = await axios.get(`/api/books/search?isbn=${review.isbn}`);
+                              setBookSummary(response.data.description || 'No official summary available. Check out the full review for my thoughts on this book!');
+                            } catch (error) {
+                              setBookSummary('No official summary available. Check out the full review for my thoughts on this book!');
+                            }
+                          } else {
+                            setBookSummary('No official summary available. Check out the full review for my thoughts on this book!');
+                          }
+                          setLoadingSummary(false);
+                        }}
                         className="w-28 flex-shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95"
                       >
                         <img
@@ -227,11 +247,17 @@ export default function HomePage() {
                   
                   <div className="prose prose-sm max-w-none">
                     <h4 className="font-serif font-bold text-lg text-charcoal mb-3">
-                      About This Book
+                      Official Summary
                     </h4>
-                    <p className="text-charcoal/80 leading-relaxed">
-                      {selectedBook.finalText}
-                    </p>
+                    {loadingSummary ? (
+                      <div className="flex items-center justify-center py-8">
+                        <LoadingAnimation size={60} />
+                      </div>
+                    ) : (
+                      <p className="text-charcoal/80 leading-relaxed text-sm sm:text-base">
+                        {bookSummary || 'Loading summary...'}
+                      </p>
+                    )}
                   </div>
                   
                   {selectedBook.tags.length > 0 && (

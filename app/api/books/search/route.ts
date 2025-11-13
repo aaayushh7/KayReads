@@ -8,6 +8,7 @@ interface BookMetadata {
   publisher?: string;
   year?: number;
   coverUrl: string;
+  description?: string;
   source: 'openlibrary' | 'googlebooks';
 }
 
@@ -46,6 +47,7 @@ async function searchOpenLibrary(isbn: string): Promise<BookMetadata | null> {
       publisher: book.publishers?.[0]?.name || '',
       year: book.publish_date ? parseInt(book.publish_date) : undefined,
       coverUrl,
+      description: book.excerpts?.[0]?.text || book.description || '',
       source: 'openlibrary',
     };
   } catch (error) {
@@ -90,6 +92,7 @@ async function searchGoogleBooks(isbn: string): Promise<BookMetadata | null> {
       publisher: book.publisher || '',
       year: book.publishedDate ? parseInt(book.publishedDate.substring(0, 4)) : undefined,
       coverUrl,
+      description: book.description || '',
       source: 'googlebooks',
     };
   } catch (error) {

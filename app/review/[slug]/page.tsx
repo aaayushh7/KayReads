@@ -74,22 +74,39 @@ export default function ReviewPage() {
   };
 
   const handleShare = async () => {
-    const shareData = {
-      title: review?.title,
-      text: `Check out this book review: ${review?.title}`,
-      url: window.location.href,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        console.log('Share cancelled');
+    const url = window.location.href;
+    
+    // Always try to copy first
+    try {
+      await navigator.clipboard.writeText(url);
+      
+      // Show toast notification
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-6 py-3 rounded-xl shadow-lg z-50 animate-slideIn';
+      toast.textContent = '✓ Link copied to clipboard!';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+      
+      // Also try native share on mobile
+      if (navigator.share && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        try {
+          await navigator.share({
+            title: review?.title,
+            text: `Check out this book review: ${review?.title}`,
+            url: url,
+          });
+        } catch (error) {
+          // User cancelled or share not available - that's fine, link is already copied
+          console.log('Native share not used');
+        }
       }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+    } catch (error) {
+      // Clipboard failed
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded-xl shadow-lg z-50 animate-slideIn';
+      toast.textContent = '✗ Failed to copy link. Please copy manually: ' + url;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
     }
   };
 

@@ -10,6 +10,7 @@ export default function LoadingAnimation({ size = 120 }: { size?: number }) {
         src="/loading-animation.lottie"
         loop
         autoplay
+        speed={1.5}
         style={{ width: size, height: size }}
       />
     </div>
