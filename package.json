@@ -10,13 +10,13 @@
     "init-admin": "node scripts/init-admin.js"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.17.7",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cookie": "^1.0.2",
     "jsonwebtoken": "^9.0.2",
-    "lottie-react": "^2.4.1",
     "mongodb": "^7.0.0",
     "mongoose": "^8.19.3",
     "next": "16.0.3",
