@@ -14,6 +14,8 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string>('');
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string>('');
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
 
   useEffect(() => {
@@ -41,8 +43,32 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         return;
       }
 
-      // Use the first available camera (usually back camera on mobile)
-      const selectedDeviceId = videoInputDevices[0].deviceId;
+      setCameras(videoInputDevices);
+
+      // Prefer back camera on mobile
+      let selectedDeviceId = selectedCamera || videoInputDevices[0].deviceId;
+      
+      if (!selectedCamera) {
+        // Try to find back/rear/environment camera (main camera on phones)
+        const backCamera = videoInputDevices.find(device => {
+          const label = device.label.toLowerCase();
+          return label.includes('back') || 
+                 label.includes('rear') ||
+                 label.includes('environment') ||
+                 label.includes('main');
+        });
+        
+        if (backCamera) {
+          selectedDeviceId = backCamera.deviceId;
+          setSelectedCamera(selectedDeviceId);
+          console.log('✅ Using back camera:', backCamera.label);
+        } else {
+          // Use last camera (often the back camera)
+          selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId;
+          setSelectedCamera(selectedDeviceId);
+          console.log('📷 Using camera:', videoInputDevices[videoInputDevices.length - 1].label);
+        }
+      }
 
       // Start decoding from video device
       codeReader.decodeFromVideoDevice(
@@ -131,16 +157,48 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             </div>
           )}
 
+          {/* Camera Selector */}
+          {cameras.length > 1 && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-charcoal mb-2">
+                Select Camera
+              </label>
+              <select
+                value={selectedCamera}
+                onChange={(e) => {
+                  setSelectedCamera(e.target.value);
+                  stopScanning();
+                  setTimeout(() => startScanning(), 100);
+                }}
+                className="input"
+              >
+                {cameras.map((camera) => (
+                  <option key={camera.deviceId} value={camera.deviceId}>
+                    {camera.label || `Camera ${cameras.indexOf(camera) + 1}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Help text */}
-          <div className="mt-4 text-sm text-charcoal/60 text-center">
+          <div className="mt-4 text-sm text-charcoal/60 text-center space-y-2">
+            <p className="font-medium">
+              📱 Point your camera at the ISBN barcode on the back of your book.
+            </p>
             <p>
-              Point your camera at the ISBN barcode on the back of your book.
-              The scan will happen automatically.
+              The scan will happen automatically when the barcode is in focus.
+            </p>
+            <p className="text-xs text-charcoal/50">
+              💡 Make sure there's good lighting and the barcode is flat.
             </p>
           </div>
 
           {/* Actions */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex justify-between items-center">
+            <p className="text-xs text-charcoal/50">
+              Having trouble? Try entering the ISBN manually.
+            </p>
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>

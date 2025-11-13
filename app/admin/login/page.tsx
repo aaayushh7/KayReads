@@ -43,9 +43,9 @@ export default function AdminLoginPage() {
             <FaBook className="text-5xl text-dusty" />
           </div>
           <h1 className="text-4xl font-serif font-bold text-charcoal mb-2">
-            Kayin Books
+            Kay Reads!
           </h1>
-          <p className="text-charcoal/60">Admin Panel</p>
+          <p className="text-charcoal/60" style={{ fontStyle: 'italic' }}>Admin Panel</p>
         </div>
 
         {/* Login Card */}

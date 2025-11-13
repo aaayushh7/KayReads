@@ -88,30 +88,30 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Header */}
-      <header className="bg-white border-b border-rose/20 sticky top-0 z-50">
+      <header className="bg-white border-b border-rose/20 sticky top-0 z-50 shadow-softer">
         <div className="bookish-container">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 lg:h-18">
             <Link href="/admin/dashboard" className="flex items-center gap-2">
-              <FaBook className="text-2xl text-dusty" />
-              <span className="text-xl font-serif font-bold text-charcoal">
-                Admin Dashboard
+              <FaBook className="text-xl lg:text-2xl text-dusty" />
+              <span className="text-lg lg:text-xl font-serif font-bold text-charcoal">
+                Kay Reads! Admin
               </span>
             </Link>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-4">
               <Link href="/" target="_blank">
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2 text-sm lg:text-base">
                   <FaEye />
-                  View Site
+                  <span className="hidden sm:inline">View Site</span>
                 </Button>
               </Link>
               <Button
                 variant="secondary"
                 onClick={handleLogout}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-sm lg:text-base"
               >
                 <FaSignOutAlt />
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>

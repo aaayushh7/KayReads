@@ -83,8 +83,23 @@ export default function NewReviewPage() {
         year: book.year?.toString() || '',
         coverUrl: book.coverUrl,
       });
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.className = 'fixed top-20 right-4 bg-green-100 border border-green-400 text-green-700 px-6 py-3 rounded-xl shadow-lg z-50';
+      successMsg.textContent = `✓ Found: ${book.title}`;
+      document.body.appendChild(successMsg);
+      setTimeout(() => successMsg.remove(), 3000);
+
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Book not found');
+      const errorMsg = error.response?.data?.error || 'Book not found. Try a different ISBN or enter details manually.';
+      
+      // Show error message
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'fixed top-20 right-4 bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded-xl shadow-lg z-50';
+      errorDiv.textContent = `✗ ${errorMsg}`;
+      document.body.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 5000);
     } finally {
       setLoading(false);
     }
@@ -199,71 +214,114 @@ export default function NewReviewPage() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Header */}
-      <header className="bg-white border-b border-rose/20 sticky top-0 z-40">
+      <header className="bg-white border-b border-rose/20 sticky top-0 z-40 shadow-softer">
         <div className="bookish-container">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 lg:h-18">
             <Link
               href="/admin/dashboard"
-              className="flex items-center gap-2 text-dusty hover:text-rose transition-colors"
+              className="flex items-center gap-2 text-dusty hover:text-rose transition-colors font-medium"
             >
               <FaArrowLeft />
-              <span className="font-medium">Back to Dashboard</span>
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Back</span>
             </Link>
 
             <div className="flex items-center gap-2">
-              <FaBook className="text-2xl text-dusty" />
-              <span className="text-xl font-serif font-bold text-charcoal">
+              <FaBook className="text-xl lg:text-2xl text-dusty" />
+              <span className="text-lg lg:text-xl font-serif font-bold text-charcoal">
                 New Review
               </span>
             </div>
 
-            <div className="w-32" /> {/* Spacer for centering */}
+            <div className="w-20 sm:w-32" /> {/* Spacer for centering */}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="bookish-container py-12">
+      <main className="bookish-container py-8 lg:py-12">
         <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Progress Indicator */}
+          <div className="mb-8 flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-dusty text-white flex items-center justify-center text-sm font-bold">1</div>
+              <span className="text-sm font-medium text-charcoal">Book Info</span>
+            </div>
+            <div className="w-12 h-0.5 bg-rose/30" />
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${formData.title ? 'bg-dusty text-white' : 'bg-rose/20 text-charcoal/40'}`}>2</div>
+              <span className={`text-sm font-medium ${formData.title ? 'text-charcoal' : 'text-charcoal/40'}`}>Review</span>
+            </div>
+            <div className="w-12 h-0.5 bg-rose/30" />
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${formData.finalText ? 'bg-dusty text-white' : 'bg-rose/20 text-charcoal/40'}`}>3</div>
+              <span className={`text-sm font-medium ${formData.finalText ? 'text-charcoal' : 'text-charcoal/40'}`}>Publish</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
             {/* Step 1: Book Metadata */}
-            <div className="card p-8">
-              <h2 className="text-2xl font-serif font-bold text-charcoal mb-6">
-                Step 1: Book Information
-              </h2>
+            <div className="card p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-dusty/10 flex items-center justify-center">
+                  <span className="text-dusty font-bold text-lg">1</span>
+                </div>
+                <h2 className="text-xl lg:text-2xl font-serif font-bold text-charcoal">
+                  Book Information
+                </h2>
+              </div>
+
+              <div className="bg-rose/5 border border-rose/20 rounded-xl p-4 mb-6">
+                <p className="text-sm text-charcoal/70 leading-relaxed">
+                  <strong className="text-dusty">Quick Start:</strong> Either scan the book's barcode, paste the ISBN from Amazon/Goodreads, or type it manually. We'll fetch all the details for you!
+                </p>
+              </div>
 
               {/* ISBN Scanner */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  ISBN
+                  ISBN (10 or 13 digits)
                 </label>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Enter ISBN"
+                    placeholder="Paste or type ISBN here"
                     value={formData.isbn}
                     onChange={(e) =>
                       setFormData({ ...formData, isbn: e.target.value })
                     }
+                    onPaste={(e) => {
+                      e.stopPropagation();
+                      const pasteData = e.clipboardData.getData('text');
+                      const cleanIsbn = pasteData.replace(/\D/g, ''); // Remove non-digits
+                      setFormData({ ...formData, isbn: cleanIsbn });
+                      e.preventDefault();
+                    }}
                     className="flex-1"
+                    autoComplete="off"
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowScanner(true)}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 flex-shrink-0"
                   >
                     <FaCamera />
-                    Scan
+                    <span className="hidden sm:inline">Scan</span>
                   </Button>
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => fetchBookMetadata()}
                     isLoading={loading}
+                    disabled={!formData.isbn}
+                    className="flex-shrink-0"
                   >
-                    Fetch
+                    {loading ? 'Fetching...' : 'Fetch'}
                   </Button>
                 </div>
+                <p className="mt-2 text-xs text-charcoal/50">
+                  💡 Tip: Scan barcode, paste from Amazon/Goodreads, or type manually
+                </p>
               </div>
 
               {/* Manual Entry Fields */}
@@ -343,10 +401,15 @@ export default function NewReviewPage() {
             </div>
 
             {/* Step 2: Review Content */}
-            <div className="card p-8">
-              <h2 className="text-2xl font-serif font-bold text-charcoal mb-6">
-                Step 2: Write Review
-              </h2>
+            <div className="card p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-dusty/10 flex items-center justify-center">
+                  <span className="text-dusty font-bold text-lg">2</span>
+                </div>
+                <h2 className="text-xl lg:text-2xl font-serif font-bold text-charcoal">
+                  Write Review
+                </h2>
+              </div>
 
               {/* Rating */}
               <div className="mb-6">
@@ -444,10 +507,15 @@ export default function NewReviewPage() {
             </div>
 
             {/* Publish Options */}
-            <div className="card p-8">
-              <h2 className="text-2xl font-serif font-bold text-charcoal mb-6">
-                Step 3: Publish
-              </h2>
+            <div className="card p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-dusty/10 flex items-center justify-center">
+                  <span className="text-dusty font-bold text-lg">3</span>
+                </div>
+                <h2 className="text-xl lg:text-2xl font-serif font-bold text-charcoal">
+                  Publish
+                </h2>
+              </div>
 
               <div className="mb-6">
                 <label className="block text-sm font-medium text-charcoal mb-3">
@@ -483,17 +551,17 @@ export default function NewReviewPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   type="submit"
                   variant="primary"
                   isLoading={loading}
-                  className="flex-1"
+                  className="flex-1 shadow-soft hover:shadow-lg"
                 >
-                  {formData.status === 'published' ? 'Publish Review' : 'Save Draft'}
+                  {formData.status === 'published' ? '🚀 Publish Review' : '💾 Save Draft'}
                 </Button>
-                <Link href="/admin/dashboard">
-                  <Button type="button" variant="outline">
+                <Link href="/admin/dashboard" className="flex-shrink-0">
+                  <Button type="button" variant="outline" className="w-full sm:w-auto">
                     Cancel
                   </Button>
                 </Link>
