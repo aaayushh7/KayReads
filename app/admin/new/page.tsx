@@ -8,6 +8,7 @@ import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
 import StarRating from '@/components/ui/StarRating';
 import BarcodeScanner from '@/components/admin/BarcodeScanner';
+import TagSelector from '@/components/admin/TagSelector';
 import { FaBook, FaCamera, FaMagic, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 
@@ -494,14 +495,13 @@ export default function NewReviewPage() {
               />
 
               {/* Tags */}
-              <div className="mt-4">
-                <Input
-                  label="Tags / Genres (comma-separated)"
-                  placeholder="Romance, Contemporary, Fiction"
-                  value={formData.tags}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tags: e.target.value })
-                  }
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-charcoal mb-3">
+                  Tags / Genres
+                </label>
+                <TagSelector
+                  selectedTags={formData.tags.split(',').map(t => t.trim()).filter(t => t)}
+                  onChange={(tags) => setFormData({ ...formData, tags: tags.join(', ') })}
                 />
               </div>
             </div>

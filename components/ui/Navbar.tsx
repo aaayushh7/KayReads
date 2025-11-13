@@ -33,8 +33,8 @@ export default function Navbar() {
             onClick={closeMobileMenu}
           >
             <FaBook className="text-dusty text-xl sm:text-2xl" />
-            <span className="hidden xs:inline">Kay Reads!</span>
-            <span className="inline xs:hidden">KR</span>
+            <span className="hidden xs:inline italic font-medium" style={{ fontFamily: 'var(--font-family-serif)' }}>Kay Reads!</span>
+            <span className="inline xs:hidden italic" style={{ fontFamily: 'var(--font-family-serif)' }}>KR</span>
           </Link>
 
           {/* Desktop Navigation Links */}

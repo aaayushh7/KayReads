@@ -124,17 +124,20 @@ export default function ReviewPage() {
                 <div className="relative max-w-sm mx-auto">
                   <div className="absolute -inset-4 bg-gradient-to-br from-dusty/20 to-gold/20 rounded-3xl blur-2xl" />
                   <img
-                    src={review.coverUrl}
+                    src={review.coverUrl.replace('zoom=1', 'zoom=2')}
                     alt={review.title}
                     className="relative w-full rounded-2xl shadow-2xl"
+                    loading="eager"
+                    style={{ imageRendering: 'crisp-edges' }}
                   />
-                  <button
+                  <Button
+                    variant="outline"
                     onClick={handleShare}
-                    className="mt-6 w-full btn-outline flex items-center justify-center gap-2"
+                    className="mt-6 w-full"
                   >
-                    <FaShare />
+                    <FaShare className="mr-2" />
                     Share Review
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

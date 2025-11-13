@@ -92,9 +92,78 @@ export default function HomePage() {
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero Carousel */}
-      <section className="relative min-h-screen pt-20 pb-16 overflow-hidden bg-gradient-to-b from-rose/10 via-cream/50 to-cream">
-        <div className="bookish-container h-full">
+      {/* Hero Carousel - Mobile: Show 2-3 books */}
+      <section className="relative pt-20 pb-12 lg:pb-16 overflow-hidden bg-gradient-to-b from-rose/10 via-cream/50 to-cream">
+        {/* Mobile: Horizontal Scroll Carousel */}
+        <div className="lg:hidden">
+          <div className="px-4 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-dusty/10 rounded-full mb-4">
+              <span className="w-2 h-2 bg-dusty rounded-full animate-pulse" />
+              <span className="text-sm font-medium text-dusty tracking-wide">Latest Reviews</span>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 pb-4 scrollbar-hide">
+              {reviews.slice(0, 6).map((review, idx) => (
+                <div
+                  key={review._id}
+                  className="flex-shrink-0 w-[85vw] snap-center"
+                >
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden h-full">
+                    <div className="flex gap-4 p-4">
+                      {/* Cover */}
+                      <div className="w-28 flex-shrink-0">
+                        <img
+                          src={review.coverUrl.replace('zoom=1', 'zoom=2')}
+                          alt={review.title}
+                          className="w-full h-auto rounded-lg shadow-md object-cover aspect-[2/3]"
+                          loading={idx === 0 ? 'eager' : 'lazy'}
+                        />
+                      </div>
+                      
+                      {/* Details */}
+                      <div className="flex-1 flex flex-col min-w-0">
+                        <h3 className="text-lg font-serif font-bold text-charcoal mb-1 line-clamp-2">
+                          {review.title}
+                        </h3>
+                        <p className="text-sm text-charcoal/60 mb-2 italic line-clamp-1">
+                          by {review.authors.join(', ')}
+                        </p>
+                        <div className="mb-2">
+                          <StarRating rating={review.rating} size={16} />
+                        </div>
+                        <p className="text-xs text-charcoal/70 line-clamp-3 mb-3 flex-1">
+                          {review.finalText}
+                        </p>
+                        <Link href={`/review/${review.slug}`}>
+                          <Button variant="primary" className="text-xs py-2 px-4 w-full">
+                            Read Review
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Elegant scroll indicators */}
+            <div className="flex justify-center gap-1.5 mt-4">
+              {reviews.slice(0, 6).map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    idx === 0 ? 'bg-dusty w-6' : 'bg-dusty/30 w-1'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: Original Large Carousel */}
+        <div className="hidden lg:block bookish-container h-full">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
             {/* Book Cover - Takes up 2 columns on desktop */}
             <div className="lg:col-span-2 order-2 lg:order-1">
@@ -105,12 +174,12 @@ export default function HomePage() {
                 {/* Cover image with better quality */}
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <img
-                    src={currentReview.coverUrl}
+                    src={currentReview.coverUrl.replace('zoom=1', 'zoom=2').replace('&edge=curl', '')}
                     alt={currentReview.title}
                     className="w-full h-auto object-cover aspect-[2/3]"
                     loading="eager"
                     style={{ 
-                      imageRendering: '-webkit-optimize-contrast',
+                      imageRendering: 'crisp-edges',
                       backfaceVisibility: 'hidden',
                       transform: 'translateZ(0)'
                     }}
@@ -128,7 +197,7 @@ export default function HomePage() {
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-charcoal leading-tight">
                 {currentReview.title}
-              </h1>
+          </h1>
 
               <p className="text-lg sm:text-xl text-charcoal/70" style={{ fontFamily: 'var(--font-family-quote)', fontStyle: 'italic' }}>
                 by {currentReview.authors.join(', ')}
@@ -167,37 +236,37 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Navigation arrows - Better positioned */}
+        {/* Navigation arrows - Desktop only */}
         {reviews.length > 1 && (
-          <div className="bookish-container">
+          <div className="hidden lg:block bookish-container">
             <button
               onClick={prevSlide}
-              className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 hover:shadow-xl backdrop-blur-sm border border-rose/10 z-10"
+              className="absolute left-8 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl backdrop-blur-sm border border-rose/10 z-10"
               aria-label="Previous review"
             >
-              <FaChevronLeft className="text-dusty text-lg lg:text-xl" />
+              <FaChevronLeft className="text-dusty text-xl" />
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 hover:shadow-xl backdrop-blur-sm border border-rose/10 z-10"
+              className="absolute right-8 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl backdrop-blur-sm border border-rose/10 z-10"
               aria-label="Next review"
             >
-              <FaChevronRight className="text-dusty text-lg lg:text-xl" />
+              <FaChevronRight className="text-dusty text-xl" />
             </button>
           </div>
         )}
 
-        {/* Dot indicators - Better styled */}
+        {/* Dot indicators - Desktop only, more elegant */}
         {reviews.length > 1 && (
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-2 bg-white/80 backdrop-blur-sm px-4 py-2.5 rounded-full shadow-soft border border-rose/10">
+          <div className="hidden lg:flex absolute bottom-12 left-1/2 -translate-x-1/2 gap-1.5">
             {reviews.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-2 rounded-full transition-all ${
+                className={`h-1.5 rounded-full transition-all duration-500 ease-in-out ${
                   idx === currentIndex
                     ? 'bg-dusty w-8'
-                    : 'bg-dusty/30 hover:bg-dusty/50 w-2'
+                    : 'bg-dusty/30 hover:bg-dusty/50 w-1.5'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

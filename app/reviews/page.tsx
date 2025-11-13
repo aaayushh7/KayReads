@@ -85,13 +85,15 @@ export default function ReviewsPage() {
         <div className="flex flex-col md:flex-row gap-4 items-center">
           {/* Search */}
           <div className="w-full md:w-96 relative">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-charcoal/40 pointer-events-none z-10" />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <FaSearch className="text-charcoal/40 text-sm" />
+            </div>
             <Input
               type="text"
               placeholder="Search by title or author..."
               value={search}
               onChange={handleSearchChange}
-              className="pl-11"
+              className="pl-10"
             />
           </div>
 
@@ -148,32 +150,34 @@ export default function ReviewsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {reviews.map((review) => (
               <Link
                 key={review._id}
                 href={`/review/${review.slug}`}
                 className="group"
               >
-                <div className="card h-full">
+                <div className="card h-full transition-all duration-300">
                   <div className="aspect-[2/3] relative overflow-hidden">
                     <img
-                      src={review.coverUrl}
+                      src={review.coverUrl.replace('zoom=1', 'zoom=2')}
                       alt={review.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      style={{ imageRendering: 'crisp-edges' }}
                     />
                   </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-serif font-semibold text-lg text-charcoal mb-1 line-clamp-2">
+                  <div className="p-3 sm:p-4 flex flex-col flex-1">
+                    <h3 className="font-serif font-semibold text-base sm:text-lg text-charcoal mb-1 line-clamp-2">
                       {review.title}
                     </h3>
-                    <p className="text-sm text-charcoal/60 mb-3 line-clamp-1">
+                    <p className="text-xs sm:text-sm text-charcoal/60 mb-2 line-clamp-1 italic">
                       {review.authors.join(', ')}
                     </p>
-                    <div className="mb-3">
-                      <StarRating rating={review.rating} size={16} />
+                    <div className="mb-2">
+                      <StarRating rating={review.rating} size={14} />
                     </div>
-                    <p className="text-sm text-charcoal/70 line-clamp-3 mb-3 flex-1">
+                    <p className="text-xs sm:text-sm text-charcoal/70 line-clamp-2 mb-2 flex-1 hidden sm:block">
                       {review.finalText}
                     </p>
                     {review.tags.length > 0 && (
@@ -181,7 +185,7 @@ export default function ReviewsPage() {
                         {review.tags.slice(0, 2).map((tag, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-1 bg-rose/10 rounded-full text-xs text-charcoal/60"
+                            className="px-2 py-0.5 bg-rose/10 rounded-full text-xs text-charcoal/60"
                           >
                             {tag}
                           </span>

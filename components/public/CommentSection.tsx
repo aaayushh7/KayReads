@@ -36,50 +36,52 @@ function CommentItem({ comment, onReply, depth = 0 }: CommentItemProps) {
   });
 
   return (
-    <div className={`${depth > 0 ? 'ml-8 mt-4' : 'mt-6'}`}>
-      <div className="flex gap-3">
-        {/* Avatar */}
+    <div className={`${depth > 0 ? 'ml-4 sm:ml-8 mt-3' : 'mt-4'}`}>
+      <div className="flex gap-2 sm:gap-3">
+        {/* Avatar - Smaller on mobile */}
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-rose flex items-center justify-center text-white font-semibold">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-rose flex items-center justify-center text-white font-semibold text-sm">
             {comment.authorName.charAt(0).toUpperCase()}
           </div>
         </div>
 
         {/* Comment content */}
-        <div className="flex-1">
-          <div className="bg-white rounded-xl p-4 shadow-softer">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-charcoal">
+        <div className="flex-1 min-w-0">
+          <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-softer border border-rose/5">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <span className="font-semibold text-charcoal text-sm sm:text-base truncate">
                 {comment.authorName}
               </span>
-              <span className="text-xs text-charcoal/50">{formattedDate}</span>
+              <span className="text-xs text-charcoal/50 ml-2 flex-shrink-0">{formattedDate}</span>
             </div>
-            <p className="text-charcoal/80 whitespace-pre-wrap">{comment.text}</p>
+            <p className="text-charcoal/80 text-sm sm:text-base whitespace-pre-wrap break-words">{comment.text}</p>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4 mt-2 ml-2">
+          {/* Actions - More compact */}
+          <div className="flex items-center gap-3 sm:gap-4 mt-1.5 sm:mt-2 ml-1 sm:ml-2">
             <button
               onClick={() => onReply(comment._id)}
-              className="text-sm text-dusty hover:text-rose flex items-center gap-1 transition-colors"
+              className="text-xs sm:text-sm text-dusty hover:text-rose flex items-center gap-1 transition-colors font-medium"
             >
-              <FaReply size={12} />
+              <FaReply size={11} />
               Reply
             </button>
             {hasReplies && (
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="text-sm text-charcoal/50 hover:text-charcoal flex items-center gap-1 transition-colors"
+                className="text-xs sm:text-sm text-charcoal/50 hover:text-charcoal flex items-center gap-1 transition-colors"
               >
                 {isCollapsed ? (
                   <>
-                    <FaChevronDown size={12} />
-                    Show {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
+                    <FaChevronDown size={10} />
+                    <span className="hidden sm:inline">Show {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}</span>
+                    <span className="sm:hidden">{comment.replies.length}</span>
                   </>
                 ) : (
                   <>
-                    <FaChevronUp size={12} />
-                    Hide replies
+                    <FaChevronUp size={10} />
+                    <span className="hidden sm:inline">Hide</span>
+                    <span className="sm:hidden">−</span>
                   </>
                 )}
               </button>
@@ -181,27 +183,27 @@ export default function CommentSection({ reviewId }: CommentSectionProps) {
   };
 
   return (
-    <div className="mt-12">
-      <h3 className="text-3xl font-serif font-bold text-charcoal mb-6">
-        Comments ({comments.length})
+    <div className="mt-8 sm:mt-12">
+      <h3 className="text-2xl sm:text-3xl font-serif font-bold text-charcoal mb-4 sm:mb-6">
+        💬 Comments ({comments.length})
       </h3>
 
-      {/* Comment form */}
-      <div id="comment-form" className="bg-white rounded-2xl p-6 shadow-soft mb-8">
+      {/* Comment form - More compact on mobile */}
+      <div id="comment-form" className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-soft mb-6 sm:mb-8 border border-rose/5">
         {replyingTo && (
-          <div className="mb-4 flex items-center justify-between bg-rose/10 px-4 py-2 rounded-lg">
-            <span className="text-sm text-charcoal/70">Replying to comment</span>
+          <div className="mb-3 sm:mb-4 flex items-center justify-between bg-rose/10 px-3 sm:px-4 py-2 rounded-lg text-sm">
+            <span className="text-charcoal/70">💬 Replying to comment</span>
             <button
               onClick={() => setReplyingTo(null)}
-              className="text-sm text-dusty hover:text-rose"
+              className="text-dusty hover:text-rose font-medium"
             >
               Cancel
             </button>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Input
               label="Name"
               placeholder="Your name"
