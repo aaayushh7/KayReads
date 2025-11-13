@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import Navbar from '@/components/ui/Navbar';
 import StarRating from '@/components/ui/StarRating';
 import Button from '@/components/ui/Button';
-import { FaChevronLeft, FaChevronRight, FaBook } from 'react-icons/fa';
+import LoadingAnimation from '@/components/ui/LoadingAnimation';
+import { FaChevronLeft, FaChevronRight, FaBook, FaTimes } from 'react-icons/fa';
 
 interface Review {
   _id: string;
@@ -24,6 +25,9 @@ export default function HomePage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [selectedBook, setSelectedBook] = useState<Review | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [mobileCarouselIndex, setMobileCarouselIndex] = useState(0);
 
   useEffect(() => {
     fetchReviews();
@@ -55,15 +59,31 @@ export default function HomePage() {
     }
   }, [reviews]);
 
+  useEffect(() => {
+    // Track scroll position for mobile carousel
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        const scrollLeft = scrollContainerRef.current.scrollLeft;
+        const cardWidth = scrollContainerRef.current.scrollWidth / reviews.length;
+        const index = Math.round(scrollLeft / cardWidth);
+        setMobileCarouselIndex(index);
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [reviews.length]);
+
   if (loading) {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center">
-            <FaBook className="text-6xl text-dusty animate-pulse-soft mx-auto mb-4" />
-            <p className="text-charcoal/50 text-lg">Loading reviews...</p>
-          </div>
+        <div className="flex flex-col items-center justify-center h-[80vh]">
+          <LoadingAnimation size={150} />
+          <p className="text-charcoal/50 text-lg mt-6">Loading reviews...</p>
         </div>
       </div>
     );
@@ -74,8 +94,8 @@ export default function HomePage() {
       <div className="min-h-screen">
         <Navbar />
         <div className="bookish-container py-20 text-center">
-          <FaBook className="text-6xl text-dusty mx-auto mb-6" />
-          <h1 className="text-4xl font-serif font-bold text-charcoal mb-4">
+          <LoadingAnimation size={120} />
+          <h1 className="text-4xl font-serif font-bold text-charcoal mb-4 mt-6">
             No Reviews Yet
           </h1>
           <p className="text-charcoal/60 text-lg mb-8">
@@ -104,23 +124,29 @@ export default function HomePage() {
           </div>
           
           <div className="relative">
-            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 pb-4 scrollbar-hide">
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 pb-4 scrollbar-hide"
+            >
               {reviews.slice(0, 6).map((review, idx) => (
                 <div
                   key={review._id}
                   className="flex-shrink-0 w-[85vw] snap-center"
                 >
-                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden h-full">
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden h-full transition-all duration-300">
                     <div className="flex gap-4 p-4">
-                      {/* Cover */}
-                      <div className="w-28 flex-shrink-0">
+                      {/* Cover - Clickable */}
+                      <button
+                        onClick={() => setSelectedBook(review)}
+                        className="w-28 flex-shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95"
+                      >
                         <img
                           src={review.coverUrl.replace('zoom=1', 'zoom=2')}
                           alt={review.title}
                           className="w-full h-auto rounded-lg shadow-md object-cover aspect-[2/3]"
                           loading={idx === 0 ? 'eager' : 'lazy'}
                         />
-                      </div>
+                      </button>
                       
                       {/* Details */}
                       <div className="flex-1 flex flex-col min-w-0">
@@ -148,18 +174,93 @@ export default function HomePage() {
               ))}
             </div>
             
-            {/* Elegant scroll indicators */}
+            {/* Elegant scroll indicators - Updates on scroll */}
             <div className="flex justify-center gap-1.5 mt-4">
               {reviews.slice(0, 6).map((_, idx) => (
                 <div
                   key={idx}
-                  className={`h-1 rounded-full transition-all duration-300 ${
-                    idx === 0 ? 'bg-dusty w-6' : 'bg-dusty/30 w-1'
+                  className={`h-1 rounded-full transition-all duration-500 ease-out ${
+                    idx === mobileCarouselIndex ? 'bg-dusty w-6' : 'bg-dusty/30 w-1'
                   }`}
                 />
               ))}
             </div>
           </div>
+          
+          {/* Book Summary Modal */}
+          {selectedBook && (
+            <div 
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+              onClick={() => setSelectedBook(null)}
+            >
+              <div 
+                className="bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl animate-slideUp"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="sticky top-0 bg-white border-b border-rose/20 px-6 py-4 flex items-center justify-between z-10">
+                  <h3 className="font-serif font-bold text-xl text-charcoal">Book Summary</h3>
+                  <button 
+                    onClick={() => setSelectedBook(null)}
+                    className="w-8 h-8 rounded-full bg-rose/10 hover:bg-rose/20 flex items-center justify-center transition-colors"
+                  >
+                    <FaTimes className="text-charcoal/60" />
+                  </button>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  <div className="flex gap-4">
+                    <img
+                      src={selectedBook.coverUrl.replace('zoom=1', 'zoom=2')}
+                      alt={selectedBook.title}
+                      className="w-32 h-auto rounded-lg shadow-lg"
+                    />
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-serif font-bold text-charcoal mb-2">
+                        {selectedBook.title}
+                      </h2>
+                      <p className="text-lg text-charcoal/70 mb-3 italic">
+                        by {selectedBook.authors.join(', ')}
+                      </p>
+                      <StarRating rating={selectedBook.rating} size={20} />
+                    </div>
+                  </div>
+                  
+                  <div className="prose prose-sm max-w-none">
+                    <h4 className="font-serif font-bold text-lg text-charcoal mb-3">
+                      About This Book
+                    </h4>
+                    <p className="text-charcoal/80 leading-relaxed">
+                      {selectedBook.finalText}
+                    </p>
+                  </div>
+                  
+                  {selectedBook.tags.length > 0 && (
+                    <div>
+                      <h4 className="font-serif font-bold text-sm text-charcoal mb-2">
+                        Genres
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedBook.tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1.5 bg-dusty/10 rounded-full text-sm text-charcoal/70"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Link href={`/review/${selectedBook.slug}`}>
+                    <Button variant="primary" className="w-full">
+                      Read Full Review
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Desktop: Original Large Carousel */}

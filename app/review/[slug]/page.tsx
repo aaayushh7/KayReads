@@ -8,6 +8,7 @@ import Navbar from '@/components/ui/Navbar';
 import StarRating from '@/components/ui/StarRating';
 import CommentSection from '@/components/public/CommentSection';
 import Button from '@/components/ui/Button';
+import LoadingAnimation from '@/components/ui/LoadingAnimation';
 import { FaChevronLeft, FaChevronRight, FaBook, FaShare } from 'react-icons/fa';
 
 interface Review {
@@ -96,11 +97,9 @@ export default function ReviewPage() {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center">
-            <FaBook className="text-6xl text-dusty animate-pulse-soft mx-auto mb-4" />
-            <p className="text-charcoal/50 text-lg">Loading review...</p>
-          </div>
+        <div className="flex flex-col items-center justify-center h-[80vh]">
+          <LoadingAnimation size={150} />
+          <p className="text-charcoal/50 text-lg mt-6">Loading review...</p>
         </div>
       </div>
     );
@@ -130,14 +129,13 @@ export default function ReviewPage() {
                     loading="eager"
                     style={{ imageRendering: 'crisp-edges' }}
                   />
-                  <Button
-                    variant="outline"
+                  <button
                     onClick={handleShare}
-                    className="mt-6 w-full"
+                    className="mt-6 w-full btn btn-outline"
                   >
                     <FaShare className="mr-2" />
                     Share Review
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>

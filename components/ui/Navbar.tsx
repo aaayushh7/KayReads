@@ -32,7 +32,7 @@ export default function Navbar() {
             className="flex items-center gap-2 text-xl sm:text-2xl font-serif font-bold text-charcoal hover:text-dusty transition-colors flex-shrink-0"
             onClick={closeMobileMenu}
           >
-            <FaBook className="text-dusty text-xl sm:text-2xl" />
+            <img src="/logo.png" alt="Kay Reads" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
             <span className="hidden xs:inline italic font-medium" style={{ fontFamily: 'var(--font-family-serif)' }}>Kay Reads!</span>
             <span className="inline xs:hidden italic" style={{ fontFamily: 'var(--font-family-serif)' }}>KR</span>
           </Link>

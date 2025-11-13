@@ -6,6 +6,7 @@ import axios from 'axios';
 import Navbar from '@/components/ui/Navbar';
 import StarRating from '@/components/ui/StarRating';
 import Input from '@/components/ui/Input';
+import LoadingAnimation from '@/components/ui/LoadingAnimation';
 import { FaSearch, FaBook } from 'react-icons/fa';
 
 interface Review {
@@ -135,9 +136,9 @@ export default function ReviewsPage() {
       {/* Reviews Grid */}
       <section className="bookish-container py-12">
         {loading ? (
-          <div className="text-center py-20">
-            <FaBook className="text-6xl text-dusty animate-pulse-soft mx-auto mb-4" />
-            <p className="text-charcoal/50 text-lg">Loading reviews...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <LoadingAnimation size={120} />
+            <p className="text-charcoal/50 text-lg mt-6">Loading reviews...</p>
           </div>
         ) : reviews.length === 0 ? (
           <div className="text-center py-20">
