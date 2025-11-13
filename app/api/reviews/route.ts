@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
+    console.log('📊 GET /api/reviews - Connecting to DB...');
     await connectDB();
+    console.log('📊 GET /api/reviews - DB connected, fetching reviews...');
 
     const query: any = {};
 
@@ -62,16 +64,22 @@ export async function GET(request: NextRequest) {
 
     const total = await Review.countDocuments(query);
 
+    console.log(`✅ GET /api/reviews - Found ${reviews.length} reviews`);
+
     return NextResponse.json({
       reviews,
       total,
       limit,
       offset,
     });
-  } catch (error) {
-    console.error('Get reviews error:', error);
+  } catch (error: any) {
+    console.error('❌ Get reviews error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
